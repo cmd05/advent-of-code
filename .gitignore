@@ -2,3 +2,5 @@
 *.exe
 *.out
 *.pdb
+test.cpp
+.vscode
