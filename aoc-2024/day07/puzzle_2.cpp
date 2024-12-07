@@ -9,19 +9,32 @@
 #include <algorithm>
 #include <chrono>
 
+uint64_t concatenate(uint64_t x, uint64_t y) {
+    uint64_t pow = 10;
+    while(y >= pow)
+        pow *= 10;
+    return x * pow + y;        
+}
+
 std::string dec_to_base3(unsigned int dec, unsigned int num_places) {
     std::string res_base3;
+    res_base3.resize(num_places);
 
+    int i = 0;
     while(dec != 0) {
         unsigned int dig = dec % 3;
-        res_base3 += std::to_string(dig);
+        // res_base3 += std::to_string(dig);
+        res_base3[i] = '0' + dig;
         dec /= 3;
+
+        i++;
+    }
+
+    for(int j = i; j < num_places; j++) {
+        res_base3[j] = '0';
     }
 
     std::reverse(res_base3.begin(), res_base3.end());
-
-    std::string padding(num_places - res_base3.length(), '0');
-    res_base3 = padding + res_base3;
 
     return res_base3;
 }
@@ -79,9 +92,11 @@ int main() {
     unsigned int max_num_ops = 11; // **according to input max 12 operations**
     unsigned int max_num_seqs = pow(3, max_num_ops); // upper bound not included
     std::vector<std::string> operations;
+    operations.resize(max_num_seqs);
 
     for(unsigned int j = 0; j < max_num_seqs; j++)
-        operations.push_back(dec_to_base3(j, max_num_ops));
+        operations[j] = dec_to_base3(j, max_num_ops);
+        // operations.push_back(dec_to_base3(j, max_num_ops));
 
     // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     // auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
@@ -108,7 +123,7 @@ int main() {
 
         for(unsigned int seq_index = 0; seq_index < num_seqs; seq_index++) {
             uint64_t calc_res = line.nums[0];
-            std::string sequence = operations[seq_index];
+            const std::string& sequence = operations[seq_index];
 
             // rightmost bit => leftmost operation and so on
             for(unsigned int j = 1; j < line.nums.size(); j++) {
@@ -117,7 +132,8 @@ int main() {
                 else if(sequence[max_num_ops-j] == '1')
                     calc_res *= line.nums[j];
                 else if(sequence[max_num_ops-j] == '2')
-                    calc_res = std::stoull(std::to_string(calc_res) + std::to_string(line.nums[j]));
+                    calc_res = concatenate(calc_res, line.nums[j]);
+                    // calc_res = std::stoull(std::to_string(calc_res) + std::to_string(line.nums[j]));
 
                 // only break if last num i.e checked all numbers
                 if(calc_res == line.result && j == (line.nums.size() - 1)) {
@@ -135,6 +151,9 @@ int main() {
             // std::cout << "operation " << operations[seq_index_eq] << ". on line " << i << '\n';
         }
     }
+    
+    // for(char* str : operations)
+    //     free(str);
 
     std::cout << "finalsum=" << final_sum;
 }
