@@ -1,3 +1,6 @@
+// o3 - ~430ms
+// o0 - ~900ms
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -8,6 +11,11 @@
 #include <cassert>
 #include <algorithm>
 #include <chrono>
+#include <string.h>
+
+#include <random>
+
+unsigned int max_num_ops = 11; // **according to input max 12 operations**
 
 uint64_t concatenate(uint64_t x, uint64_t y) {
     uint64_t pow = 10;
@@ -16,9 +24,10 @@ uint64_t concatenate(uint64_t x, uint64_t y) {
     return x * pow + y;        
 }
 
-std::string dec_to_base3(unsigned int dec, unsigned int num_places) {
-    std::string res_base3;
-    res_base3.resize(num_places);
+char* dec_to_base3(unsigned int dec) {
+    // std::string res_base3;
+    // res_base3.resize(num_places);
+    char* res_base3 = new char[max_num_ops + 1];
 
     int i = 0;
     while(dec != 0) {
@@ -30,11 +39,14 @@ std::string dec_to_base3(unsigned int dec, unsigned int num_places) {
         i++;
     }
 
-    for(int j = i; j < num_places; j++) {
+    for(int j = i; j < max_num_ops; j++) {
         res_base3[j] = '0';
     }
 
-    std::reverse(res_base3.begin(), res_base3.end());
+    res_base3[max_num_ops] = '\0';
+    strrev(res_base3);
+
+    // std::reverse(res_base3.begin(), res_base3.end());
 
     return res_base3;
 }
@@ -89,14 +101,41 @@ int main() {
     // + -> 0
     // * -> 1
     // || -> 2
-    unsigned int max_num_ops = 11; // **according to input max 12 operations**
     unsigned int max_num_seqs = pow(3, max_num_ops); // upper bound not included
-    std::vector<std::string> operations;
+    std::vector<char*> operations;
     operations.resize(max_num_seqs);
 
     for(unsigned int j = 0; j < max_num_seqs; j++)
-        operations[j] = dec_to_base3(j, max_num_ops);
+        operations[j] = dec_to_base3(j);
         // operations.push_back(dec_to_base3(j, max_num_ops));
+
+    {
+        // auto rng = std::default_random_engine {};
+
+        // one digit
+        // std::shuffle(operations.begin(), operations.begin() + 3, rng);
+        
+        // // two digit
+        // std::shuffle(operations.begin() + 3, operations.begin() + 9, rng);
+        
+        // // three digit
+        // std::shuffle(operations.begin() + 9, operations.begin() + 27, rng);
+        
+        // // four digit
+        // std::shuffle(operations.begin() + 27, operations.begin() + 81, rng);
+        
+        // five digit
+        // std::shuffle(operations.begin() + 81, operations.begin() + 243, rng);
+        
+        // // six digit
+        // std::shuffle(operations.begin() + 243, operations.begin() + 729, rng);
+        
+        // // seven digit
+        // std::shuffle(operations.begin() + 729, operations.begin() + 2187, rng);
+        
+        // // 8 digit
+        // std::shuffle(operations.begin() + 2187, operations.begin() + 6561, rng);
+    }
 
     // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     // auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
@@ -123,20 +162,24 @@ int main() {
 
         for(unsigned int seq_index = 0; seq_index < num_seqs; seq_index++) {
             uint64_t calc_res = line.nums[0];
-            const std::string& sequence = operations[seq_index];
+            char* sequence = operations[seq_index];
 
             // rightmost bit => leftmost operation and so on
-            for(unsigned int j = 1; j < line.nums.size(); j++) {
-                if(sequence[max_num_ops-j] == '0')
-                    calc_res += line.nums[j];
-                else if(sequence[max_num_ops-j] == '1')
-                    calc_res *= line.nums[j];
-                else if(sequence[max_num_ops-j] == '2')
-                    calc_res = concatenate(calc_res, line.nums[j]);
+            unsigned int nums_sz = line.nums.size();
+            for(unsigned int j = 1; j < nums_sz; j++) {
+                auto& num = line.nums[j];
+                char op = sequence[max_num_ops-j];
+
+                if(op == '0')
+                    calc_res *= num;
+                else if(op == '1')
+                    calc_res += num;
+                else if(op == '2')
+                    calc_res = concatenate(calc_res, num);
                     // calc_res = std::stoull(std::to_string(calc_res) + std::to_string(line.nums[j]));
 
                 // only break if last num i.e checked all numbers
-                if(calc_res == line.result && j == (line.nums.size() - 1)) {
+                if(calc_res == line.result && j == (nums_sz - 1)) {
                     res_equal = true;
                     seq_index_eq = seq_index;
                     goto loop_exit;
@@ -151,9 +194,10 @@ int main() {
             // std::cout << "operation " << operations[seq_index_eq] << ". on line " << i << '\n';
         }
     }
-    
+
+    // memory is freed at the end of program anyway    
     // for(char* str : operations)
-    //     free(str);
+    //     delete[] str;
 
     std::cout << "finalsum=" << final_sum;
 }
