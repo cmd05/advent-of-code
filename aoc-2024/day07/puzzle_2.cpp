@@ -113,7 +113,7 @@ int main() {
         // auto rng = std::default_random_engine {};
 
         // one digit
-        // std::shuffle(operations.begin(), operations.begin() + 3, rng);
+        // std::shuffle(operations.begin() + 0, operations.begin() + 3, rng);
         
         // // two digit
         // std::shuffle(operations.begin() + 3, operations.begin() + 9, rng);
@@ -130,11 +130,20 @@ int main() {
         // // six digit
         // std::shuffle(operations.begin() + 243, operations.begin() + 729, rng);
         
-        // // seven digit
+        // seven digit
         // std::shuffle(operations.begin() + 729, operations.begin() + 2187, rng);
         
-        // // 8 digit
+        // // eight digit
         // std::shuffle(operations.begin() + 2187, operations.begin() + 6561, rng);
+        
+        // // nine digit
+        // std::shuffle(operations.begin() + 6561, operations.begin() + 19683, rng);
+        
+        // ten digit
+        // std::shuffle(operations.begin() + 19683, operations.begin() + 59049, rng);
+        
+        // // eleven digit
+        // std::shuffle(operations.begin() + 59049, operations.begin() + 177147, rng);
     }
 
     // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
