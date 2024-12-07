@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <cassert>
 #include <algorithm>
+#include <chrono>
 
 std::string dec_to_base3(unsigned int dec, unsigned int num_places) {
     std::string res_base3;
@@ -68,6 +69,25 @@ int main() {
 
     uint64_t final_sum = 0;
 
+    // std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    // pre-generate operand combinations upto 10 operands
+    // "base-3 counting pattern"
+    // + -> 0
+    // * -> 1
+    // || -> 2
+    unsigned int max_num_ops = 11; // **according to input max 12 operations**
+    unsigned int max_num_seqs = pow(3, max_num_ops); // upper bound not included
+    std::vector<std::string> operations;
+
+    for(unsigned int j = 0; j < max_num_seqs; j++)
+        operations.push_back(dec_to_base3(j, max_num_ops));
+
+    // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    // auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    // std::cout << "time combs: " << elapsed_time << "ms\n";
+
+
     // check lines
     for(unsigned int i = 0; i < lines.size(); i++) {
         Line& line = lines[i];
@@ -78,25 +98,25 @@ int main() {
         // || -> 2
         unsigned int num_ops = line.nums.size() - 1;
         unsigned int num_seqs = pow(3, num_ops); // upper bound not included
-        std::vector<std::string> operations;
 
-        for(unsigned int j = 0; j < num_seqs; j++)
-            operations.push_back(dec_to_base3(j, num_ops));
+        // std::vector<std::string> operations;
+        // for(unsigned int j = 0; j < num_seqs; j++)
+        //     operations.push_back(dec_to_base3(j, num_ops));
 
         bool res_equal = false;
         unsigned int seq_index_eq = 0;
 
-        for(unsigned int seq_index = 0; seq_index < operations.size(); seq_index++) {
+        for(unsigned int seq_index = 0; seq_index < num_seqs; seq_index++) {
             uint64_t calc_res = line.nums[0];
             std::string sequence = operations[seq_index];
 
             // rightmost bit => leftmost operation and so on
             for(unsigned int j = 1; j < line.nums.size(); j++) {
-                if(sequence[j-1] == '0')
+                if(sequence[max_num_ops-j] == '0')
                     calc_res += line.nums[j];
-                else if(sequence[j-1] == '1')
+                else if(sequence[max_num_ops-j] == '1')
                     calc_res *= line.nums[j];
-                else if(sequence[j-1] == '2')
+                else if(sequence[max_num_ops-j] == '2')
                     calc_res = std::stoull(std::to_string(calc_res) + std::to_string(line.nums[j]));
 
                 // only break if last num i.e checked all numbers
