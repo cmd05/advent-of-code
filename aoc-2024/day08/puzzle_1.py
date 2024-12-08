@@ -27,6 +27,8 @@ for v in antennas.values():
     for i in range(len(v) - 1):
         for j in range(i+1, len(v)):
             slope = calc_slope(v[i], v[j])
+            count = 0
+            flag_next = False
 
             # for each pair loop over all points having same slope
             for m in range(nrows):
@@ -43,5 +45,14 @@ for v in antennas.values():
                         ### SINCE WE ARE NOT USING SQRT, DISTANCE WILL BE 4 TIMES ###
                         if((dist_1 == 4 * dist_2) or dist_2 == 4 * dist_1):
                             antinodes_set.add(p)
+                            count += 1
+                            
+                            if(count == 2):
+                                flag_next = True
+                                break
+                
+                if(flag_next):
+                    break
+
 
 print(len(antinodes_set))
