@@ -10,7 +10,6 @@ for i in range(len(disk_map)):
         id_map.append((id, int(disk_map[i])))
         id += 1
     elif int(disk_map[i]) != 0: # ignore zero free spaces
-    # else:
         id_map.append((free_space_indicator, int(disk_map[i])))
 
 # swap free spaces
